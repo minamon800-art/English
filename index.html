@@ -1,0 +1,146 @@
+let mediaRecorder;
+let audioChunks = [];
+let currentQuestion = "";
+let isRecording = false; // 録音状態を管理するフラグ
+const apiKeyInput = document.getElementById('apiKey');
+const recBtn = document.getElementById('recBtn');
+
+// 1. 質問の自動生成と再生
+document.getElementById('startBtn').addEventListener('click', () => {
+    const questions = [
+        "What did you do last weekend?",
+        "What is your favorite food and why?",
+        "How do you usually spend your holidays?"
+    ];
+    currentQuestion = questions[Math.floor(Math.random() * questions.length)];
+    document.getElementById('questionText').innerText = currentQuestion;
+
+    const uttr = new SpeechSynthesisUtterance(currentQuestion);
+    uttr.lang = "en-US";
+    window.speechSynthesis.speak(uttr);
+
+    recBtn.disabled = false;
+    recBtn.innerText = "タップして返答する";
+    recBtn.style.background = "#f44336";
+});
+
+// 2. スマホでも確実に動く「クリック/タップ」のトグル処理
+recBtn.addEventListener('click', async () => {
+    if (!isRecording) {
+        // 録音開始
+        await startRecording();
+    } else {
+        // 録音停止
+        stopRecording();
+    }
+});
+
+async function startRecording() {
+    audioChunks = [];
+    try {
+        // スマホのブラウザにマイクの許可を求める
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        
+        // Android Chromeで動きやすい設定（オーディオのMIMEタイプを自動判別、またはaudio/webm）
+        let options = { mimeType: 'audio/webm' };
+        if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+            options = { mimeType: 'audio/mp4' }; // iOSや一部環境用フォールバック
+        }
+        
+        mediaRecorder = new MediaRecorder(stream, options);
+        
+        mediaRecorder.ondataavailable = event => {
+            if (event.data.size > 0) audioChunks.push(event.data);
+        };
+        mediaRecorder.onstop = sendToGemini;
+        
+        mediaRecorder.start();
+        isRecording = true;
+        recBtn.innerText = "■ 録音中...（もう一度タップして終了）";
+        recBtn.style.background = "#333"; // 録音中は暗くする
+    } catch (err) {
+        console.error(err);
+        alert("マイクの起動に失敗しました。HTTPS環境（https://~）で開いているか、ブラウザのマイク権限を確認してください。 エラー: " + err.message);
+    }
+}
+
+function stopRecording() {
+    if (mediaRecorder && mediaRecorder.state === "recording") {
+        mediaRecorder.stop();
+        // マイクのストリームを完全に停止して、スマホのマイク使用中アイコンを消す
+        mediaRecorder.stream.getTracks().forEach(track => track.stop());
+        isRecording = false;
+        recBtn.innerText = "解析中...";
+    }
+}
+
+// 3. 音声データをGemini APIに送信して採点（ここは前回と同じ）
+async function sendToGemini() {
+    const apiKey = apiKeyInput.value;
+    if (!apiKey) {
+        alert("APIキーを入力してください");
+        recBtn.innerText = "タップして返答する";
+        recBtn.style.background = "#f44336";
+        return;
+    }
+
+    // Androidの録音形式に合わせてBlobを作成（空の場合は処理しない）
+    if (audioChunks.length === 0) {
+        alert("音声データが空です。もう一度録音してください。");
+        recBtn.innerText = "タップして返答する";
+        return;
+    }
+    const audioBlob = new Blob(audioChunks, { type: mediaRecorder.mimeType });
+    
+    const reader = new FileReader();
+    reader.readAsDataURL(audioBlob);
+    reader.onloadend = async () => {
+        const base64Audio = reader.result.split(',')[1];
+
+        const promptText = `
+        あなたは優秀な英語教師です。
+        質問「${currentQuestion}」に対して、添付された音声で生徒が英語で返答しました。
+        音声を聞き取り、以下の3項目について各5点満点（合計15点満点）で厳しく採点し、日本語でフィードバックをしてください。
+
+        ■フィードバック項目
+        ・イントネーション（発音の上がり下がり、自然さ）：〇/5点
+        ・返答内容（文法、質問に対する適切さ）：〇/5点
+        ・ニュアンス,トーン、テンション（声の明るさや感情のノリ）：〇/5点
+        合計：〇/15点
+
+        最後に、各項目ごとに具体的な改善提案を日本語で箇条書きで書いてください。
+        `;
+
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+
+        const payload = {
+            contents: [{
+                parts: [
+                    { text: promptText },
+                    { inlineData: { mimeType: mediaRecorder.mimeType, data: base64Audio } }
+                ]
+            }]
+        };
+
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            const data = await response.json();
+            
+            if (data.candidates && data.candidates[0].content.parts[0].text) {
+                const resultText = data.candidates[0].content.parts[0].text;
+                document.getElementById('resultArea').innerText = resultText;
+            } else {
+                document.getElementById('resultArea').innerText = "APIからの返答が空でした。録音時間や声の大きさを確認してください。";
+            }
+        } catch (error) {
+            console.error(error);
+            document.getElementById('resultArea').innerText = "エラーが発生しました。APIキーや通信環境を確認してください。";
+        }
+        recBtn.innerText = "タップして返答する";
+        recBtn.style.background = "#f44336";
+    };
+}
