@@ -11,12 +11,18 @@
         .start-btn { background: #4CAF50; color: white; }
         .rec-btn { background: #f44336; color: white; }
         .result { text-align: left; background: #eee; padding: 15px; border-radius: 5px; margin-top: 20px; white-space: pre-wrap; }
+        .alert-box { display: none; background: #ffdde0; color: #d32f2f; padding: 15px; border-radius: 5px; margin-bottom: 20px; text-align: left; font-size: 14px; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <h2>英語一問一答（Gemini版）</h2>
+    
+    <div id="micAlert" class="alert-box">
+        <strong>⚠️ マイクがブロックされています</strong><br>
+        スマホのブラウザがマイクの使用を禁止しています。URLバーの左側にある「🔒」または「設定アイコン」をタップして、マイクの権限を「許可」に変更したあと、ページを再読み込みしてください。
+    </div>
     
     <input type="password" id="apiKey" placeholder="Gemini APIキーを入力" style="width:80%; padding:8px; margin-bottom:20px;"><br>
 
@@ -32,10 +38,16 @@
     let audioChunks = [];
     let currentQuestion = "";
     let isRecording = false;
+    let localStream = null;
     const apiKeyInput = document.getElementById('apiKey');
     const recBtn = document.getElementById('recBtn');
+    const micAlert = document.getElementById('micAlert');
 
-    document.getElementById('startBtn').addEventListener('click', () => {
+    // 1. 質問をスタート（ユーザーがボタンを押すので、ここなら音声もマイク要求もブロックされません）
+    document.getElementById('startBtn').addEventListener('click', async () => {
+        // 先行してマイクの許可チェック＆ポップアップ表示
+        await checkAndRequestMic();
+
         const questions = [
             "What did you do last weekend?",
             "What is your favorite food and why?",
@@ -44,6 +56,7 @@
         currentQuestion = questions[Math.floor(Math.random() * questions.length)];
         document.getElementById('questionText').innerText = currentQuestion;
 
+        // 音声の再生
         const uttr = new SpeechSynthesisUtterance(currentQuestion);
         uttr.lang = "en-US";
         window.speechSynthesis.speak(uttr);
@@ -53,6 +66,23 @@
         recBtn.style.background = "#f44336";
     });
 
+    // マイクの権限を安全に要求する関数
+    async function checkAndRequestMic() {
+        try {
+            if (!localStream) {
+                localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                // 一度トラックを止めておく
+                localStream.getTracks().forEach(track => track.stop());
+                localStream = null;
+            }
+            micAlert.style.display = "none"; // 許可されていれば警告を隠す
+        } catch (err) {
+            console.error("マイク権限エラー:", err);
+            micAlert.style.display = "block"; // 拒否されていたら警告を表示
+        }
+    }
+
+    // 2. 録音ボタンのタップ処理
     recBtn.addEventListener('click', async () => {
         if (!isRecording) {
             await startRecording();
@@ -64,13 +94,14 @@
     async function startRecording() {
         audioChunks = [];
         try {
-            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            
             let options = { mimeType: 'audio/webm' };
             if (!MediaRecorder.isTypeSupported(options.mimeType)) {
                 options = { mimeType: 'audio/mp4' };
             }
             
-            mediaRecorder = new MediaRecorder(stream, options);
+            mediaRecorder = new MediaRecorder(localStream, options);
             mediaRecorder.ondataavailable = event => {
                 if (event.data.size > 0) audioChunks.push(event.data);
             };
@@ -80,21 +111,26 @@
             isRecording = true;
             recBtn.innerText = "■ 録音中...（もう一度タップして終了）";
             recBtn.style.background = "#333";
+            micAlert.style.display = "none";
         } catch (err) {
             console.error(err);
-            alert("マイクの起動に失敗しました: " + err.message);
+            micAlert.style.display = "block";
+            alert("マイクを起動できませんでした。画面上の案内を確認してください。");
         }
     }
 
     function stopRecording() {
         if (mediaRecorder && mediaRecorder.state === "recording") {
             mediaRecorder.stop();
-            mediaRecorder.stream.getTracks().forEach(track => track.stop());
+            if (localStream) {
+                localStream.getTracks().forEach(track => track.stop());
+            }
             isRecording = false;
             recBtn.innerText = "解析中...";
         }
     }
 
+    // 3. Gemini APIへの送信処理
     async function sendToGemini() {
         const apiKey = apiKeyInput.value;
         if (!apiKey) {
