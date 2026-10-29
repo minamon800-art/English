@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- 【要変更】屋号・説明文を実際の内容に書き換えてください -->
+  <title>星読みサロン 月灯り｜個人鑑定・性格診断</title>
+  <meta name="description" content="タロット・西洋占星術・数秘術による個人鑑定と性格診断。対面・オンラインで、あなたの「これから」に寄り添います。">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;600&family=Zen+Kaku+Gothic+New:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --night: #1f2140;
+      --night-deep: #15162d;
+      --gold: #c9a961;
+      --gold-soft: #e8d9b0;
+      --cream: #faf6ee;
+      --paper: #ffffff;
+      --ink: #33334a;
+      --ink-soft: #6b6b80;
+      --line: #e6dfcf;
+      --radius: 14px;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; scroll-padding-top: 72px; }
+    body {
+      margin: 0;
+      font-family: "Zen Kaku Gothic New", "Hiragino Sans", sans-serif;
+      color: var(--ink);
+      background: var(--cream);
+      line-height: 1.9;
+      letter-spacing: .04em;
+    }
+    h1, h2, h3 { font-family: "Noto Serif JP", serif; font-weight: 600; line-height: 1.5; }
+    a { color: inherit; }
+    img { max-width: 100%; display: block; }
+    .wrap { max-width: 1040px; margin: 0 auto; padding: 0 20px; }
+
+    /* ---------- header ---------- */
+    header {
+      position: fixed; inset: 0 0 auto 0; z-index: 10;
+      background: rgba(21, 22, 45, .88);
+      backdrop-filter: blur(8px);
+      color: #fff;
+    }
+    .nav { display: flex; align-items: center; justify-content: space-between; height: 64px; }
+    .logo { font-family: "Noto Serif JP", serif; font-size: 1.15rem; text-decoration: none; letter-spacing: .12em; }
+    .logo span { color: var(--gold); margin-right: .3em; }
+    .nav ul { display: flex; gap: 28px; list-style: none; margin: 0; padding: 0; font-size: .9rem; }
+    .nav ul a { text-decoration: none; opacity: .85; }
+    .nav ul a:hover { opacity: 1; color: var(--gold-soft); }
+    #menu-toggle, .menu-btn { display: none; }
+
+    /* ---------- hero ---------- */
+    .hero {
+      position: relative; overflow: hidden;
+      min-height: 100vh; min-height: 100svh;
+      display: grid; place-items: center; text-align: center;
+      color: #fff;
+      background:
+        radial-gradient(ellipse at 70% 20%, rgba(201,169,97,.18), transparent 55%),
+        radial-gradient(ellipse at 20% 80%, rgba(120,110,200,.25), transparent 60%),
+        linear-gradient(180deg, var(--night-deep), var(--night));
+      padding: 100px 20px 60px;
+    }
+    .stars { position: absolute; inset: 0; pointer-events: none; }
+    .stars i {
+      position: absolute; width: 2px; height: 2px; border-radius: 50%;
+      background: #fff; opacity: .6; animation: twinkle 4s ease-in-out infinite;
+    }
+    @keyframes twinkle { 50% { opacity: .1; } }
+    .moon {
+      width: 120px; height: 120px; margin: 0 auto 28px; border-radius: 50%;
+      box-shadow: inset -26px 6px 0 0 var(--gold-soft);
+      filter: drop-shadow(0 0 24px rgba(232,217,176,.45));
+    }
+    .hero p.en { font-family: "Noto Serif JP", serif; color: var(--gold); letter-spacing: .4em; font-size: .8rem; margin: 0 0 12px; }
+    .hero h1 { font-size: clamp(1.7rem, 5vw, 2.8rem); margin: 0 0 20px; letter-spacing: .12em; }
+    .hero .lead { max-width: 560px; margin: 0 auto 36px; opacity: .9; font-size: clamp(.92rem, 2.4vw, 1.05rem); }
+    .btn {
+      display: inline-block; padding: 14px 36px; border-radius: 999px;
+      background: var(--gold); color: var(--night-deep); font-weight: 500;
+      text-decoration: none; transition: transform .2s, box-shadow .2s;
+      border: none; cursor: pointer; font-size: 1rem; font-family: inherit; letter-spacing: .08em;
+    }
+    .btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(201,169,97,.35); }
+    .btn.ghost { background: transparent; color: #fff; border: 1px solid rgba(255,255,255,.5); margin-left: 12px; }
+
+    /* ---------- section common ---------- */
+    section { padding: 96px 0; }
+    .sec-title { text-align: center; margin-bottom: 56px; }
+    .sec-title .en { display: block; font-family: "Noto Serif JP", serif; color: var(--gold); letter-spacing: .35em; font-size: .78rem; }
+    .sec-title h2 { font-size: clamp(1.4rem, 3.5vw, 1.9rem); margin: 6px 0 0; }
+    .sec-title h2::after { content: "✦"; display: block; color: var(--gold); font-size: .8rem; margin-top: 10px; }
+
+    /* ---------- concept ---------- */
+    .concept p { max-width: 640px; margin: 0 auto; text-align: center; }
+
+    /* ---------- menu ---------- */
+    .menu { background: var(--paper); }
+    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); gap: 24px; }
+    .card {
+      background: var(--cream); border: 1px solid var(--line); border-radius: var(--radius);
+      padding: 32px 28px; display: flex; flex-direction: column;
+    }
+    .card .icon { font-size: 2rem; line-height: 1; margin-bottom: 14px; }
+    .card h3 { margin: 0 0 8px; font-size: 1.2rem; }
+    .card p { margin: 0 0 18px; font-size: .92rem; color: var(--ink-soft); flex: 1; }
+    .price { border-top: 1px dashed var(--line); padding-top: 14px; font-size: .9rem; }
+    .price div { display: flex; justify-content: space-between; }
+    .price strong { font-family: "Noto Serif JP", serif; color: var(--night); font-size: 1.05rem; }
+    .note { text-align: center; font-size: .82rem; color: var(--ink-soft); margin-top: 28px; }
+
+    /* ---------- profile ---------- */
+    .profile-box { display: grid; grid-template-columns: 260px 1fr; gap: 48px; align-items: center; }
+    .portrait {
+      aspect-ratio: 1; border-radius: 50%;
+      background: linear-gradient(135deg, var(--night), #4a4680);
+      display: grid; place-items: center; color: var(--gold-soft);
+      font-family: "Noto Serif JP", serif; font-size: .85rem; text-align: center;
+      border: 6px solid var(--paper); box-shadow: 0 10px 30px rgba(31,33,64,.18);
+    }
+    .profile-box h3 { margin: 0 0 4px; font-size: 1.4rem; }
+    .profile-box .kana { color: var(--ink-soft); font-size: .85rem; margin-bottom: 16px; }
+    .tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; padding: 0; list-style: none; }
+    .tags li { font-size: .8rem; padding: 4px 14px; border-radius: 999px; background: var(--paper); border: 1px solid var(--line); }
+
+    /* ---------- oracle (mini fortune) ---------- */
+    .oracle { background: linear-gradient(180deg, var(--night), var(--night-deep)); color: #fff; text-align: center; }
+    .oracle .sec-title h2 { color: #fff; }
+    .oracle-card {
+      max-width: 460px; margin: 0 auto; padding: 40px 28px; border-radius: var(--radius);
+      border: 1px solid rgba(201,169,97,.4); background: rgba(255,255,255,.04);
+    }
+    #oracle-msg { min-height: 5.7em; margin: 0 0 24px; font-family: "Noto Serif JP", serif; font-size: 1.05rem; transition: opacity .4s; }
+    .oracle small { display: block; margin-top: 18px; opacity: .6; font-size: .75rem; }
+
+    /* ---------- flow ---------- */
+    .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; counter-reset: step; padding: 0; list-style: none; }
+    .steps li { background: var(--paper); border-radius: var(--radius); padding: 28px 22px; border: 1px solid var(--line); position: relative; }
+    .steps li::before {
+      counter-increment: step; content: "STEP " counter(step);
+      font-family: "Noto Serif JP", serif; color: var(--gold); font-size: .78rem; letter-spacing: .2em;
+    }
+    .steps h3 { margin: 6px 0 8px; font-size: 1.05rem; }
+    .steps p { margin: 0; font-size: .88rem; color: var(--ink-soft); }
+
+    /* ---------- voice ---------- */
+    .voice { background: var(--paper); }
+    .voices { display: grid; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); gap: 24px; }
+    .voices blockquote { margin: 0; padding: 28px; border-radius: var(--radius); background: var(--cream); border-left: 3px solid var(--gold); font-size: .92rem; }
+    .voices cite { display: block; margin-top: 12px; font-style: normal; color: var(--ink-soft); font-size: .82rem; }
+
+    /* ---------- faq ---------- */
+    .faq-list { max-width: 720px; margin: 0 auto; }
+    details { background: var(--paper); border: 1px solid var(--line); border-radius: 10px; margin-bottom: 12px; }
+    summary { cursor: pointer; padding: 18px 48px 18px 22px; list-style: none; position: relative; font-weight: 500; }
+    summary::-webkit-details-marker { display: none; }
+    summary::before { content: "Q."; color: var(--gold); font-family: "Noto Serif JP", serif; margin-right: 8px; }
+    summary::after { content: "+"; position: absolute; right: 22px; top: 50%; transform: translateY(-50%); color: var(--gold); font-size: 1.3rem; }
+    details[open] summary::after { content: "−"; }
+    details p { margin: 0; padding: 0 22px 20px; color: var(--ink-soft); font-size: .92rem; }
+
+    /* ---------- contact ---------- */
+    .contact { background: var(--night); color: #fff; text-align: center; }
+    .contact .sec-title h2 { color: #fff; }
+    .contact p { max-width: 560px; margin: 0 auto 32px; opacity: .9; }
+    .contact-links { display: flex; flex-wrap: wrap; gap: 16px; justify-content: center; }
+    .contact-links .btn.ghost { margin-left: 0; }
+
+    footer { background: var(--night-deep); color: rgba(255,255,255,.65); font-size: .78rem; padding: 32px 0; text-align: center; }
+    footer nav { margin-bottom: 10px; }
+    footer nav a { margin: 0 10px; text-decoration: none; }
+    footer .disclaimer { max-width: 640px; margin: 0 auto 12px; }
+
+    /* ---------- fade in ---------- */
+    .reveal { opacity: 0; transform: translateY(24px); transition: opacity .8s, transform .8s; }
+    .reveal.show { opacity: 1; transform: none; }
+    @media (prefers-reduced-motion: reduce) {
+      .reveal { opacity: 1; transform: none; transition: none; }
+      .stars i { animation: none; }
+      html { scroll-behavior: auto; }
+    }
+
+    /* ---------- responsive ---------- */
+    @media (max-width: 760px) {
+      section { padding: 72px 0; }
+      .menu-btn { display: block; cursor: pointer; width: 28px; height: 20px; position: relative; }
+      .menu-btn span, .menu-btn span::before, .menu-btn span::after {
+        position: absolute; left: 0; width: 100%; height: 2px; background: #fff; content: ""; transition: .3s;
+      }
+      .menu-btn span { top: 9px; }
+      .menu-btn span::before { top: -8px; }
+      .menu-btn span::after { top: 8px; }
+      #menu-toggle:checked + .menu-btn span { background: transparent; }
+      #menu-toggle:checked + .menu-btn span::before { top: 0; transform: rotate(45deg); }
+      #menu-toggle:checked + .menu-btn span::after { top: 0; transform: rotate(-45deg); }
+      .nav ul {
+        position: absolute; top: 64px; left: 0; right: 0; flex-direction: column; gap: 0;
+        background: var(--night-deep); max-height: 0; overflow: hidden; transition: max-height .35s;
+      }
+      .nav ul a { display: block; padding: 14px 24px; border-top: 1px solid rgba(255,255,255,.08); }
+      #menu-toggle:checked ~ ul { max-height: 420px; }
+      .profile-box { grid-template-columns: 1fr; text-align: center; gap: 28px; }
+      .portrait { width: 200px; margin: 0 auto; }
+      .tags { justify-content: center; }
+      .btn.ghost { margin: 14px 0 0; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="wrap nav">
+    <a href="#top" class="logo"><span>☾</span>月灯り</a>
+    <input type="checkbox" id="menu-toggle" aria-label="メニューを開く">
+    <label for="menu-toggle" class="menu-btn"><span></span></label>
+    <ul>
+      <li><a href="#menu">メニュー</a></li>
+      <li><a href="#profile">プロフィール</a></li>
+      <li><a href="#flow">ご予約の流れ</a></li>
+      <li><a href="#faq">よくある質問</a></li>
+      <li><a href="#contact">お問い合わせ</a></li>
+    </ul>
+  </div>
+</header>
+
+<main id="top">
+  <!-- ===== HERO ===== -->
+  <section class="hero">
+    <div class="stars" aria-hidden="true"></div>
+    <div>
+      <div class="moon" aria-hidden="true"></div>
+      <p class="en">FORTUNE TELLING &amp; PERSONALITY READING</p>
+      <h1>星読みサロン 月灯り</h1>
+      <p class="lead">迷ったとき、立ち止まったとき。<br>タロット・占星術・数秘術で、<br>あなたらしい「これから」をいっしょに見つけます。</p>
+      <a href="#contact" class="btn">鑑定を予約する</a>
+      <a href="#menu" class="btn ghost">メニューを見る</a>
+    </div>
+  </section>
+
+  <!-- ===== CONCEPT ===== -->
+  <section class="concept">
+    <div class="wrap reveal">
+      <div class="sec-title"><span class="en">CONCEPT</span><h2>夜道を照らす、小さな灯りのように</h2></div>
+      <p>
+        占いは、未来を決めつけるものではなく、<br>
+        自分の気持ちや可能性に気づくための「きっかけ」だと考えています。<br><br>
+        恋愛・仕事・人間関係・ご自身の性格のこと。<br>
+        誰にも話せなかったお悩みも、どうぞ安心してお聞かせください。<br>
+        おひとりおひとりに合わせて、ていねいに鑑定いたします。
+      </p>
+    </div>
+  </section>
+
+  <!-- ===== MENU ===== -->
+  <!-- 【要変更】メニュー名・説明・料金は実際の内容に合わせてください -->
+  <section class="menu" id="menu">
+    <div class="wrap">
+      <div class="sec-title reveal"><span class="en">MENU</span><h2>鑑定メニュー</h2></div>
+      <div class="cards">
+        <article class="card reveal">
+          <div class="icon">🃏</div>
+          <h3>タロット鑑定</h3>
+          <p>今の状況や相手の気持ち、選択肢ごとの流れなど、具体的なお悩みにカードでお答えします。</p>
+          <div class="price">
+            <div><span>20分</span><strong>¥3,000</strong></div>
+            <div><span>40分</span><strong>¥5,500</strong></div>
+          </div>
+        </article>
+        <article class="card reveal">
+          <div class="icon">🌙</div>
+          <h3>西洋占星術</h3>
+          <p>生年月日・出生時間・出生地からホロスコープを作成。生まれ持った資質や、これからの運気の流れを読み解きます。</p>
+          <div class="price">
+            <div><span>60分</span><strong>¥8,000</strong></div>
+          </div>
+        </article>
+        <article class="card reveal">
+          <div class="icon">🔢</div>
+          <h3>数秘術・性格診断</h3>
+          <p>お名前と生年月日から、あなたの本質・強み・向いている働き方を診断。結果は診断シートにしてお渡しします。</p>
+          <div class="price">
+            <div><span>診断シート＋解説30分</span><strong>¥4,500</strong></div>
+          </div>
+        </article>
+        <article class="card reveal">
+          <div class="icon">💞</div>
+          <h3>相性診断</h3>
+          <p>恋人・ご夫婦・家族・職場の方との相性を、占星術と数秘術の両面から見ていきます。</p>
+          <div class="price">
+            <div><span>おふたり分・40分</span><strong>¥6,000</strong></div>
+          </div>
+        </article>
+        <article class="card reveal">
+          <div class="icon">✉️</div>
+          <h3>メール鑑定</h3>
+          <p>対面やお電話が苦手な方に。ご相談内容をお送りいただき、3日以内に文章で鑑定結果をお届けします。</p>
+          <div class="price">
+            <div><span>1つのご相談</span><strong>¥3,500</strong></div>
+          </div>
+        </article>
+        <article class="card reveal">
+          <div class="icon">✨</div>
+          <h3>はじめての方へ</h3>
+          <p>何を相談すればいいかわからない方も大丈夫。お話を伺いながら、ぴったりの占術で鑑定します。</p>
+          <div class="price">
+            <div><span>初回限定 30分</span><strong>¥3,000</strong></div>
+          </div>
+        </article>
+      </div>
+      <p class="note">※ 料金はすべて税込です。対面（〇〇市内）・オンライン（Zoom / LINE通話）からお選びいただけます。</p>
+    </div>
+  </section>
+
+  <!-- ===== PROFILE ===== -->
+  <!-- 【要変更】写真・名前・経歴を差し替えてください。写真は <div class="portrait"> を <img class="portrait" src="photo.jpg" alt="..."> に置き換えます -->
+  <section id="profile">
+    <div class="wrap">
+      <div class="sec-title reveal"><span class="en">PROFILE</span><h2>鑑定士について</h2></div>
+      <div class="profile-box reveal">
+        <div class="portrait">写真が<br>入ります</div>
+        <div>
+          <h3>月野 ひかり</h3>
+          <div class="kana">つきの ひかり ／ 鑑定歴 〇年</div>
+          <p>
+            幼いころから星やカードに親しみ、会社員として働くかたわら占いを学ぶ。
+            友人や知人の相談にのるうちに「話してスッキリした」「背中を押してもらえた」という声をいただき、本格的に鑑定をスタート。
+            これまでに延べ〇〇〇名以上を鑑定。
+          </p>
+          <p>
+            “当てる”ことよりも、“前を向ける”ことを大切に。
+            やさしく、でも正直に、あなたの心に寄り添う鑑定を心がけています。
+          </p>
+          <ul class="tags">
+            <li>タロット</li><li>西洋占星術</li><li>数秘術</li><li>カラー診断</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== MINI ORACLE ===== -->
+  <section class="oracle">
+    <div class="wrap reveal">
+      <div class="sec-title"><span class="en">TODAY'S MESSAGE</span><h2>今日のひとことメッセージ</h2></div>
+      <div class="oracle-card">
+        <p id="oracle-msg" aria-live="polite">心を静かにして、<br>下のボタンを押してみてください。</p>
+        <button class="btn" id="oracle-btn">メッセージを受け取る</button>
+        <small>※ お楽しみ用のメッセージです</small>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== FLOW ===== -->
+  <section id="flow">
+    <div class="wrap">
+      <div class="sec-title reveal"><span class="en">FLOW</span><h2>ご予約から鑑定までの流れ</h2></div>
+      <ol class="steps">
+        <li class="reveal"><h3>お問い合わせ</h3><p>LINEまたはメールで、ご希望のメニューと日時をお知らせください。</p></li>
+        <li class="reveal"><h3>日時の確定</h3><p>24時間以内にご返信し、日時と鑑定方法（対面・オンライン）を決定します。</p></li>
+        <li class="reveal"><h3>お支払い</h3><p>銀行振込・PayPayにて、鑑定日の前日までにお支払いください。</p></li>
+        <li class="reveal"><h3>鑑定</h3><p>リラックスしてお話しください。鑑定後のご質問もお気軽にどうぞ。</p></li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- ===== VOICE ===== -->
+  <!-- 【要変更】以下はレイアウト確認用のサンプル文です。実際にいただいたご感想（掲載許可済みのもの）に差し替えてください -->
+  <section class="voice">
+    <div class="wrap">
+      <div class="sec-title reveal"><span class="en">VOICE</span><h2>お客さまの声</h2></div>
+      <div class="voices">
+        <blockquote class="reveal">（サンプル）転職に迷っていましたが、自分の強みを言葉にしてもらえて決心がつきました。<cite>― 30代・女性／数秘術・性格診断</cite></blockquote>
+        <blockquote class="reveal">（サンプル）はじめての占いで緊張していましたが、やさしく話を聞いてくださり、心が軽くなりました。<cite>― 20代・女性／タロット鑑定</cite></blockquote>
+        <blockquote class="reveal">（サンプル）夫婦の相性を見てもらい、お互いの違いを前向きに受け止められるようになりました。<cite>― 40代・男性／相性診断</cite></blockquote>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== FAQ ===== -->
+  <section id="faq">
+    <div class="wrap">
+      <div class="sec-title reveal"><span class="en">FAQ</span><h2>よくある質問</h2></div>
+      <div class="faq-list reveal">
+        <details><summary>占いを受けるのは初めてです。大丈夫でしょうか？</summary><p>もちろん大丈夫です。はじめての方がほとんどですので、お気軽にご相談ください。初回限定メニューもご用意しています。</p></details>
+        <details><summary>出生時間がわかりません。</summary><p>出生時間がわからなくても鑑定は可能です。わかる範囲の情報で、できるかぎり詳しく読み解きます。</p></details>
+        <details><summary>オンライン鑑定はどのように行いますか？</summary><p>Zoom または LINE のビデオ・音声通話で行います。カメラオフでも問題ありません。</p></details>
+        <details><summary>相談内容が他の人に知られることはありますか？</summary><p>ご相談内容や個人情報は厳重に管理し、第三者に開示することは一切ありません。</p></details>
+        <details><summary>キャンセルはできますか？</summary><p>前日までのご連絡で無料キャンセル・日程変更が可能です。当日キャンセルは料金の50%を頂戴しております。</p></details>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== CONTACT ===== -->
+  <!-- 【要変更】LINE・メール・Instagram のリンク先を実際のものに書き換えてください -->
+  <section class="contact" id="contact">
+    <div class="wrap reveal">
+      <div class="sec-title"><span class="en">CONTACT</span><h2>ご予約・お問い合わせ</h2></div>
+      <p>ご予約・ご質問は、LINEまたはメールからお気軽にどうぞ。<br>受付時間 10:00〜20:00（不定休）</p>
+      <div class="contact-links">
+        <a href="https://line.me/R/ti/p/@xxxxxxx" class="btn" target="_blank" rel="noopener">LINEで予約する</a>
+        <a href="mailto:info@example.com?subject=%E9%91%91%E5%AE%9A%E3%81%AE%E3%81%94%E4%BA%88%E7%B4%84" class="btn ghost">メールで問い合わせる</a>
+        <a href="https://www.instagram.com/xxxxxxx/" class="btn ghost" target="_blank" rel="noopener">Instagram</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <nav><a href="#menu">メニュー</a><a href="#faq">よくある質問</a><a href="#contact">お問い合わせ</a></nav>
+    <p class="disclaimer">※ 鑑定結果は、ご自身の判断の参考としてご活用ください。医療・法律・投資などの専門的な判断が必要なご相談は、各専門家へご相談ください。</p>
+    <p>&copy; <span id="year"></span> 星読みサロン 月灯り</p>
+  </div>
+</footer>
+
+<script>
+  // 星をランダムに配置
+  const stars = document.querySelector('.stars');
+  for (let i = 0; i < 70; i++) {
+    const s = document.createElement('i');
+    s.style.left = Math.random() * 100 + '%';
+    s.style.top = Math.random() * 100 + '%';
+    s.style.animationDelay = (Math.random() * 4) + 's';
+    if (Math.random() < .2) { s.style.width = s.style.height = '3px'; }
+    stars.appendChild(s);
+  }
+
+  // スクロールでふわっと表示
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) { e.target.classList.add('show'); io.unobserve(e.target); }
+    });
+  }, { threshold: .15 });
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+  // スマホメニュー：リンクを押したら閉じる
+  document.querySelectorAll('.nav ul a').forEach(a =>
+    a.addEventListener('click', () => { document.getElementById('menu-toggle').checked = false; })
+  );
+
+  // 今日のひとことメッセージ
+  const messages = [
+    'がんばりすぎなくて大丈夫。<br>今日は自分を甘やかす日にしましょう。',
+    '小さな「やってみたい」を大切に。<br>それが新しい扉を開く鍵になります。',
+    '気になっている人に、<br>ひとこと声をかけてみて。',
+    '迷ったときは、<br>心が軽くなるほうを選んでみましょう。',
+    'いつもより少しだけ早く寝ると、<br>明日いいことがありそうです。',
+    'あなたの笑顔に救われている人がいます。<br>自信を持って。',
+    '片づけをすると運気アップ。<br>まずは机の上からはじめてみて。',
+    '焦らなくても大丈夫。<br>物事はちょうどいいタイミングで動き出します。',
+    '「ありがとう」を口に出すと、<br>うれしい循環が生まれる日です。',
+    '直感がさえる日。<br>ふと浮かんだアイデアをメモしておきましょう。'
+  ];
+  const msgEl = document.getElementById('oracle-msg');
+  document.getElementById('oracle-btn').addEventListener('click', () => {
+    msgEl.style.opacity = 0;
+    setTimeout(() => {
+      msgEl.innerHTML = messages[Math.floor(Math.random() * messages.length)];
+      msgEl.style.opacity = 1;
+    }, 400);
+  });
+
+  document.getElementById('year').textContent = new Date().getFullYear();
+</script>
+</body>
+</html>
